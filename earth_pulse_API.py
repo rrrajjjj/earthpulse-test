@@ -9,12 +9,19 @@ from utils import calc_ndvi, normalize, brighten
 
 app = FastAPI()
 
+@app.get("/")
+def home():
+    return ("There are 3 endpoints in this API:\
+            1. /attributes/filename: returns metadata for the file\
+            2. /thumbnail/filename: returns an rgb image as png \
+            3. /ndvi/filename: return ndvi calculated on the image as png")
 
 @app.get("/attributes/{filename}")
 def get_attributes(filename:str = Path(None, description="The filename of the image")):
     attributes = dict()
     with rasterio.open(filename) as dataset:
-        attributes["image_size"] = (dataset.width, dataset.height)
+        attributes["image_size"] = {"width":dataset.width, 
+                                    "height": dataset.height}
         attributes["num_bands"] = dataset.count
         attributes["crs"] = str(dataset.crs)
         attributes["bounding_box"] = (dataset.bounds)
